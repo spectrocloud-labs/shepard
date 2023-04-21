@@ -29,12 +29,12 @@ type ClusterAnalysisSpec struct {
 
 // ClusterAnalysisStatus defines the observed state of ClusterAnalysis
 type ClusterAnalysisStatus struct {
-	Status           string         `json:"status,omitempty"`
-	StartTime        string         `json:"startTime,omitempty"`
-	EndTime          string         `json:"endTime,omitempty"`
-	PredictionStatus string         `json:"predictionStatus,omitempty"`
-	Problems         int            `json:"problems,omitempty"`
-	Results          []K8sGptResult `json:"results,omitempty"`
+	Status         string         `json:"status,omitempty"`
+	StartTime      string         `json:"startTime,omitempty"`
+	EndTime        string         `json:"endTime,omitempty"`
+	AnalysisStatus string         `json:"analysisStatus,omitempty"`
+	Problems       int            `json:"problems,omitempty"`
+	Results        []K8sGptResult `json:"results,omitempty"`
 }
 
 type K8sGptResult struct {
@@ -55,8 +55,13 @@ type Sensitive struct {
 	Masked   string `json:"masked,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age"
+// +kubebuilder:printcolumn:name="Analysis Namespace",type="string",JSONPath=".spec.namespace",description="Analysis Namespace"
+// +kubebuilder:printcolumn:name="Analysis Status",type="string",JSONPath=".status.analysisStatus",description="Analysis Status"
+// +kubebuilder:printcolumn:name="Problems",type="integer",JSONPath=".status.problems",description="Problems"
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.status",description="ClusterAnalysis Status"
 
 // ClusterAnalysis is the Schema for the clusteranalyses API
 type ClusterAnalysis struct {

@@ -32,8 +32,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/shepard/api/v1alpha1"
 	"github.com/spectrocloud-labs/shepard/pkg/common"
 )
@@ -41,19 +41,25 @@ import (
 // ClusterAnalysisReconciler reconciles a ClusterAnalysis object
 type ClusterAnalysisReconciler struct {
 	client.Client
+	Log           logr.Logger
 	Scheme        *runtime.Scheme
 	K8sGptService string
+}
+
+// SetupWithManager sets up the ClusterAnalysis controller with the Manager
+func (r *ClusterAnalysisReconciler) SetupWithManager(mgr ctrl.Manager, options controller.Options) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&v1alpha1.ClusterAnalysis{}).
+		Complete(r)
 }
 
 //+kubebuilder:rbac:groups=local-ai.spectrocloud-labs.com,resources=clusteranalyses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=local-ai.spectrocloud-labs.com,resources=clusteranalyses/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=local-ai.spectrocloud-labs.com,resources=clusteranalyses/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
+// Reconcile monitors the state of ClusterAnalysis resources and sends analysis requests to k8sgpt
 func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
-	log.V(0).Info("Reconciling ClusterAnalysis...")
+	r.Log.V(0).Info("Reconciling ClusterAnalysis", "name", req.Name, "namespace", req.Namespace)
 
 	analysis := &v1alpha1.ClusterAnalysis{}
 	if err := r.Get(ctx, req.NamespacedName, analysis); err != nil {
@@ -61,7 +67,7 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		if apierrs.IsNotFound(err) {
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "failed to fetch ClusterAnalysis")
+		r.Log.Error(err, "failed to fetch ClusterAnalysis")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -70,7 +76,7 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	if analysis.Status.Status == "" {
-		log.Info("Creating new ClusterAnalysis", "ClusterAnalysis", analysis, "version", analysis.ResourceVersion)
+		r.Log.V(0).Info("Creating new ClusterAnalysis", "details", analysis)
 
 		t := time.Now()
 		results := make([]v1alpha1.K8sGptResult, 0)
@@ -79,7 +85,7 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		analysis.Status.StartTime = t.Format("01022006-150405")
 
 		if err := r.triggerAnalysis(ctx, analysis, req.NamespacedName); err != nil {
-			log.Error(err, "failed to trigger ClusterAnalysis")
+			r.Log.Error(err, "failed to trigger ClusterAnalysis")
 			return ctrl.Result{}, nil
 		}
 	}
@@ -91,25 +97,12 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				return ctrl.Result{}, err
 			}
 		}
+		r.Log.V(0).Info("ClusterAnalysis in progress. Requeuing in 30s.", "name", req.Name, "namespace", req.Namespace)
 		return ctrl.Result{RequeueAfter: time.Second * 30}, nil
 	} else {
-		setEndTime(analysis)
-		analysis.Status.Status = common.ClusterAnalysisFailed
-
-		if err := r.updateAnalysis(ctx, analysis); err != nil {
-			return ctrl.Result{}, err
-		}
-
-		log.V(0).Info("Reconcile ClusterAnalysis complete")
+		r.failAnalysis(ctx, analysis, fmt.Errorf("unexpected runtime error"))
 		return ctrl.Result{}, nil
 	}
-}
-
-// SetupWithManager sets up the controller with the Manager.
-func (r *ClusterAnalysisReconciler) SetupWithManager(mgr ctrl.Manager, options controller.Options) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.ClusterAnalysis{}).
-		Complete(r)
 }
 
 type K8sGptResponse struct {
@@ -119,8 +112,6 @@ type K8sGptResponse struct {
 }
 
 func (r *ClusterAnalysisReconciler) triggerAnalysis(ctx context.Context, analysis *v1alpha1.ClusterAnalysis, key types.NamespacedName) error {
-	log := log.FromContext(ctx)
-
 	client := &http.Client{}
 	url := net.FormatURL("http", r.K8sGptService, 8080, "/analyze")
 	req, err := http.NewRequest(http.MethodPost, url.String(), &bytes.Buffer{})
@@ -137,7 +128,7 @@ func (r *ClusterAnalysisReconciler) triggerAnalysis(ctx context.Context, analysi
 	req.URL.RawQuery = q.Encode()
 
 	go func() {
-		log.Info("Generating k8sgpt analysis", "url", req.URL.String())
+		r.Log.V(0).Info("Generating k8sgpt analysis", "name", analysis.Name, "namespace", analysis.Namespace, "url", req.URL.String())
 		resp, err := client.Do(req)
 		if err != nil {
 			r.failAnalysis(ctx, analysis, err)
@@ -158,15 +149,14 @@ func (r *ClusterAnalysisReconciler) triggerAnalysis(ctx context.Context, analysi
 
 		setEndTime(analysis)
 		analysis.Status.Status = common.ClusterAnalysisCompleted
-		analysis.Status.PredictionStatus = k8sGptResponse.Status
+		analysis.Status.AnalysisStatus = k8sGptResponse.Status
 		analysis.Status.Problems = k8sGptResponse.Problems
 		analysis.Status.Results = k8sGptResponse.Results
 
 		if err := r.updateAnalysis(ctx, analysis); err != nil {
 			r.failAnalysis(ctx, analysis, err)
 		}
-		log.V(0).Info("Updated ClusterAnalysis", "status", analysis.Status.Status)
-		log.V(0).Info("Reconcile ClusterAnalysis complete")
+		r.Log.V(0).Info("Reconcile ClusterAnalysis complete", "name", analysis.Name, "namespace", analysis.Namespace, "Status", analysis.Status.Status)
 	}()
 
 	return nil
@@ -187,6 +177,7 @@ func (r *ClusterAnalysisReconciler) failAnalysis(ctx context.Context, analysis *
 	if err := r.Status().Update(ctx, analysis); err != nil {
 		panic(err)
 	}
+	r.Log.V(0).Info("Reconcile ClusterAnalysis complete", "name", analysis.Name, "namespace", analysis.Namespace, "Status", analysis.Status.Status)
 }
 
 func setEndTime(analysis *v1alpha1.ClusterAnalysis) {
@@ -195,12 +186,10 @@ func setEndTime(analysis *v1alpha1.ClusterAnalysis) {
 }
 
 func (r *ClusterAnalysisReconciler) updateAnalysis(ctx context.Context, analysis *v1alpha1.ClusterAnalysis) error {
-	log := log.FromContext(ctx)
-	log.Info("Updating ClusterAnalysis", "Status", analysis.Status.Status)
-
 	if err := r.Status().Update(ctx, analysis); err != nil {
-		log.Error(err, "failed to update ClusterAnalysis status")
+		r.Log.Error(err, "failed to update ClusterAnalysis status")
 		return err
 	}
+	r.Log.V(0).Info("Updated ClusterAnalysis", "name", analysis.Name, "namespace", analysis.Namespace, "Status", analysis.Status.Status)
 	return nil
 }

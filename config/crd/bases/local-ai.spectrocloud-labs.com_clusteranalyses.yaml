@@ -15,7 +15,28 @@ spec:
     singular: clusteranalysis
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Age
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Analysis Namespace
+      jsonPath: .spec.namespace
+      name: Analysis Namespace
+      type: string
+    - description: Analysis Status
+      jsonPath: .status.analysisStatus
+      name: Analysis Status
+      type: string
+    - description: Problems
+      jsonPath: .status.problems
+      name: Problems
+      type: integer
+    - description: ClusterAnalysis Status
+      jsonPath: .status.status
+      name: Status
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ClusterAnalysis is the Schema for the clusteranalyses API
@@ -47,9 +68,9 @@ spec:
           status:
             description: ClusterAnalysisStatus defines the observed state of ClusterAnalysis
             properties:
-              endTime:
+              analysisStatus:
                 type: string
-              predictionStatus:
+              endTime:
                 type: string
               problems:
                 type: integer

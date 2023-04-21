@@ -95,6 +95,7 @@ func main() {
 		Client:        mgr.GetClient(),
 		Scheme:        mgr.GetScheme(),
 		K8sGptService: k8sGptService,
+		Log:           ctrl.Log.WithName("controllers").WithName("ClusterAnalysis"),
 	}).SetupWithManager(mgr, controller.Options{
 		MaxConcurrentReconciles: maxConcurrentReconciles,
 		RecoverPanic:            &recoverPanic,
