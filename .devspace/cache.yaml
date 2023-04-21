@@ -1,0 +1,9 @@
+images:
+    shepard:
+        imageConfigHash: f26defb75e55a257bd6f949cb70f6dc5ec141c17a3a669f00e404813ef669f60
+        dockerfileHash: e64b77a548879504eb5a502fb696e896eaf7a4e87a45bebd222c8f2f750f4b06
+        imageName: tylergillson/shepard
+        tag: dev
+lastContext:
+    namespace: k8sgpt
+    context: tyler@sbom-import.us-east-2.eksctl.io

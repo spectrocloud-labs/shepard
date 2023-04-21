@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shepard
+  labels:
+    component: shepard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: shepard
+  template:
+    metadata:
+      labels:
+        component: shepard
+    spec:
+      containers:
+        - name: shepard
+          command:
+          - /shepard
+          args:
+          - --enable-leader-election
+          image: shepard:latest
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+      serviceAccountName: shepard
+      nodeSelector:
+        kubernetes.io/os: linux

@@ -1,0 +1,27 @@
+# permissions for end users to view clusteranalyses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: clusteranalysis-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: shepard
+    app.kubernetes.io/part-of: shepard
+    app.kubernetes.io/managed-by: kustomize
+  name: clusteranalysis-viewer-role
+rules:
+- apiGroups:
+  - local-ai.spectrocloud-labs.com
+  resources:
+  - clusteranalyses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - local-ai.spectrocloud-labs.com
+  resources:
+  - clusteranalyses/status
+  verbs:
+  - get

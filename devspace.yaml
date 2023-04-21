@@ -1,0 +1,53 @@
+name: shepard
+version: v2beta1
+
+vars:
+  IMAGE: tylergillson/shepard
+
+images:
+  shepard:
+    image: ${IMAGE}
+    tags:
+    - dev
+    createPullSecret: false
+    dockerfile: Dockerfile.dev
+    rebuildStrategy: ignoreContextChanges
+    docker:
+      useBuildKit: true
+      args:
+      - "--platform=linux/amd64"
+
+deployments:
+  shepard:
+    namespace: k8sgpt
+    kubectl:
+      kustomize: true
+      kustomizeArgs:
+      - "--load-restrictor"
+      - "LoadRestrictionsNone"
+      manifests:
+      - config/manager/overlays/devspace
+
+dev:
+  shepard:
+    imageSelector: ${IMAGE}
+    terminal:
+      enabled: true
+      disableReplace: true
+      workDir: "/workspace"
+      command: ./devspace_start.sh
+    ports:
+    - port: "2347"
+    sync:
+    - path: .:/workspace
+      excludePaths:
+        - '**'
+        - '!/api'
+        - '!/config'
+        - '!/controllers'
+        - '!/pkg'
+        - '!/devspace_start.sh'
+        - '!/go.mod'
+        - '!/go.sum'
+        - '!/main.go'
+        - 'Makefile'

@@ -1,0 +1,12 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: shepard-cluster-admin-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: shepard
+    namespace: k8sgpt
+roleRef:
+  kind: ClusterRole
+  name: shepard-cluster-admin-role
+  apiGroup: rbac.authorization.k8s.io

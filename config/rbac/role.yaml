@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: shepard-role
+rules:
+- apiGroups:
+  - local-ai.spectrocloud-labs.com
+  resources:
+  - clusteranalyses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - local-ai.spectrocloud-labs.com
+  resources:
+  - clusteranalyses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - local-ai.spectrocloud-labs.com
+  resources:
+  - clusteranalyses/status
+  verbs:
+  - get
+  - patch
+  - update

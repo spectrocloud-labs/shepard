@@ -1,0 +1,7 @@
+apiVersion: local-ai.spectrocloud-labs.com/v1alpha1
+kind: ClusterAnalysis
+metadata:
+  name: clusteranalysis-sample-no-cache
+spec:
+  namespace: cert-manager
+  noCache: true

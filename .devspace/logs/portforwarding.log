@@ -1,0 +1,65 @@
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"an error occurred forwarding 2347 -\u003e 2347: error forwarding port 2347 to pod f5e8a6fe806507b373cdb42144f418da14061d1a72139c1d593e381c3fd3a4d2, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-89fca2c1-341f-9616-0735-831b2d4e1642\": failed to connect to localhost:2347 inside namespace \"f5e8a6fe806507b373cdb42144f418da14061d1a72139c1d593e381c3fd3a4d2\", IPv4: dial tcp4 127.0.0.1:2347: connect: connection refused IPv6 dial tcp6: address localhost: no suitable address found","time":"2023-04-20T16:43:26-07:00"}
+Handling connection for 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:63764: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:63764: write: broken pipe","time":"2023-04-20T16:47:49-07:00"}
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:63881: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:63881: write: broken pipe","time":"2023-04-20T16:49:52-07:00"}
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:64135: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:64135: write: broken pipe","time":"2023-04-20T16:52:55-07:00"}
+Handling connection for 2347
+{"level":"error","msg":"an error occurred forwarding 2347 -\u003e 2347: error forwarding port 2347 to pod f5e8a6fe806507b373cdb42144f418da14061d1a72139c1d593e381c3fd3a4d2, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-89fca2c1-341f-9616-0735-831b2d4e1642\": failed to connect to localhost:2347 inside namespace \"f5e8a6fe806507b373cdb42144f418da14061d1a72139c1d593e381c3fd3a4d2\", IPv4: dial tcp4 127.0.0.1:2347: connect: connection refused IPv6 dial tcp6: address localhost: no suitable address found","time":"2023-04-20T16:53:15-07:00"}
+Handling connection for 2347
+Handling connection for 2347
+Handling connection for 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:64484: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:64484: write: broken pipe","time":"2023-04-20T17:02:55-07:00"}
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:49696: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:49696: write: broken pipe","time":"2023-04-20T17:07:12-07:00"}
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:49925: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:49925: write: broken pipe","time":"2023-04-20T17:08:18-07:00"}
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:50506: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:50506: write: broken pipe","time":"2023-04-20T17:19:13-07:00"}
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:50962: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:50962: write: broken pipe","time":"2023-04-20T17:23:04-07:00"}
+Handling connection for 2347
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2347-\u003e127.0.0.1:51396: write tcp4 127.0.0.1:2347-\u003e127.0.0.1:51396: write: broken pipe","time":"2023-04-20T17:26:05-07:00"}
+Handling connection for 2347
+Forwarding from 127.0.0.1:2347 -> 2347
+Forwarding from [::1]:2347 -> 2347
+Handling connection for 2347
+Handling connection for 2347
