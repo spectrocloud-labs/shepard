@@ -1,5 +1,9 @@
 kind: Kustomization
 namespace: k8sgpt
+images:
+- name: shepard
+  newName: quay.io/spectrocloud-labs/cluster-analysis-controller
+  newTag: latest
 resources:
-  - ../../base
-  - ../../../crd/bases/
+- ../../base
+apiVersion: kustomize.config.k8s.io/v1beta1

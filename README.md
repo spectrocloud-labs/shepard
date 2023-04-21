@@ -4,5 +4,6 @@ Wraps k8sgpt functionality with the ClusterAnalysis CR for on-demand cluster hea
 Free analysis is accomplished via k8sgpt's llama backend.
 
 ## Requirements
-- k8sgpt server
-- local-ai server
+The following services must be pre-installed in your cluster:
+- [k8sgpt](https://github.com/k8sgpt-ai/k8sgpt)
+- [local-ai](https://github.com/go-skynet/LocalAI)

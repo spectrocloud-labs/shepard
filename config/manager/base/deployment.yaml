@@ -19,7 +19,7 @@ spec:
           command:
           - /shepard
           args:
-          - --enable-leader-election
+          - --leader-elect
           image: shepard:latest
           resources:
             limits:

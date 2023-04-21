@@ -65,10 +65,8 @@ func main() {
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&recoverPanic, "recover-panic", true, "Whether or not to recover from panics.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&k8sGptService, "k8sgpt-service", "k8sgpt-service.k8sgpt.svc.cluster.local", "The DNS name of the K8SGPT service.")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&k8sGptService, "k8sgpt-service", "k8sgpt.k8sgpt.svc.cluster.local", "The DNS name of the K8SGPT service.")
 	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 1, "The maximum number of allowed, concurrent reconciles.")
 	opts := zap.Options{
 		Development: true,

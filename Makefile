@@ -6,6 +6,8 @@
 
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/spectrocloud-labs/cluster-analysis-controller:latest
+TARGET_ARCH ?= linux/amd64
+
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26.0
 
@@ -63,12 +65,9 @@ build: manifests generate fmt vet ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
-# If you wish built the manager image targeting other platforms you can use the --platform flag.
-# (i.e. docker build --platform linux/arm64 ). However, you must enable docker buildKit for it.
-# More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+	docker buildx build --platform=$(TARGET_ARCH) -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
@@ -107,7 +106,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager/overlays/devspace && $(KUSTOMIZE) edit set image shepard=${IMG}
+	cd config/manager/overlays/prod && $(KUSTOMIZE) edit set image shepard=${IMG}
 	$(KUSTOMIZE) build --load-restrictor LoadRestrictionsNone config/default | kubectl apply -f -
 
 .PHONY: undeploy
