@@ -1,7 +1,7 @@
 # Shepard
-Wraps k8sgpt functionality with the ClusterAnalysis CR for on-demand cluster health analysis.
+Wraps k8sgpt functionality with the ClusterAnalysis CR for declarative, Kubernetes-native cluster health analyses.
 
-Free analysis is accomplished via k8sgpt's llama backend.
+Free, in-cluster analysis is accomplished via k8sgpt's `localai` backend.
 
 ## Requirements
 The following services must be pre-installed in your cluster:
