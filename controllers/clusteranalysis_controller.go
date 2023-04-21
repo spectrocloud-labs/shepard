@@ -74,6 +74,7 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if analysis.Status.Status == common.ClusterAnalysisCompleted || analysis.Status.Status == common.ClusterAnalysisFailed {
 		return ctrl.Result{}, nil
 	}
+	// analysis.Status.Status one of [ "", common.ClusterAnalysisInProgress ]
 
 	if analysis.Status.Status == "" {
 		r.Log.V(0).Info("Creating new ClusterAnalysis", "details", analysis)
@@ -84,33 +85,30 @@ func (r *ClusterAnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		analysis.Status.Results = results
 		analysis.Status.StartTime = t.Format("01022006-150405")
 
+		// Trigger async analysis, then set the status to InProgress
 		if err := r.triggerAnalysis(ctx, analysis, req.NamespacedName); err != nil {
 			r.Log.Error(err, "failed to trigger ClusterAnalysis")
 			return ctrl.Result{}, nil
 		}
+		analysis.Status.Status = common.ClusterAnalysisInProgress
+		if err := r.updateAnalysis(ctx, analysis); err != nil {
+			r.Log.Error(err, "failed to update ClusterAnalysis")
+			return ctrl.Result{}, nil
+		}
 	}
 
-	if analysis.Status.Status == "" || analysis.Status.Status == common.ClusterAnalysisInProgress {
-		if analysis.Status.Status == "" {
-			analysis.Status.Status = common.ClusterAnalysisInProgress
-			if err := r.updateAnalysis(ctx, analysis); err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-		r.Log.V(0).Info("ClusterAnalysis in progress. Requeuing in 30s.", "name", req.Name, "namespace", req.Namespace)
-		return ctrl.Result{RequeueAfter: time.Second * 30}, nil
-	} else {
-		r.failAnalysis(ctx, analysis, fmt.Errorf("unexpected runtime error"))
-		return ctrl.Result{}, nil
-	}
+	r.Log.V(0).Info("ClusterAnalysis in progress. Requeuing in 30s.", "name", req.Name, "namespace", req.Namespace)
+	return ctrl.Result{RequeueAfter: time.Second * 30}, nil
 }
 
+// K8sGptResponse is the response returned by the k8sgpt /analyze API
 type K8sGptResponse struct {
 	Status   string                  `json:"status"`
 	Problems int                     `json:"problems"`
 	Results  []v1alpha1.K8sGptResult `json:"results"`
 }
 
+// triggerAnalysis triggers an async cluster analysis via the k8sgpt API and updates the ClusterAnalysis status on completion
 func (r *ClusterAnalysisReconciler) triggerAnalysis(ctx context.Context, analysis *v1alpha1.ClusterAnalysis, key types.NamespacedName) error {
 	client := &http.Client{}
 	url := net.FormatURL("http", r.K8sGptService, 8080, "/analyze")
@@ -162,6 +160,13 @@ func (r *ClusterAnalysisReconciler) triggerAnalysis(ctx context.Context, analysi
 	return nil
 }
 
+// setEndTime sets status.endTime for a ClusterAnalysis
+func setEndTime(analysis *v1alpha1.ClusterAnalysis) {
+	t := time.Now()
+	analysis.Status.EndTime = t.Format("01022006-150405")
+}
+
+// failAnalysis sets the ClusterAnalysis status to Failed, along with an error message and panics if the update fails
 func (r *ClusterAnalysisReconciler) failAnalysis(ctx context.Context, analysis *v1alpha1.ClusterAnalysis, err error) {
 	analysis.Status.Status = common.ClusterAnalysisFailed
 	analysis.Status.Results = []v1alpha1.K8sGptResult{
@@ -174,17 +179,13 @@ func (r *ClusterAnalysisReconciler) failAnalysis(ctx context.Context, analysis *
 		},
 	}
 	setEndTime(analysis)
-	if err := r.Status().Update(ctx, analysis); err != nil {
+	if err := r.updateAnalysis(ctx, analysis); err != nil {
 		panic(err)
 	}
 	r.Log.V(0).Info("Reconcile ClusterAnalysis complete", "name", analysis.Name, "namespace", analysis.Namespace, "Status", analysis.Status.Status)
 }
 
-func setEndTime(analysis *v1alpha1.ClusterAnalysis) {
-	t := time.Now()
-	analysis.Status.EndTime = t.Format("01022006-150405")
-}
-
+// updateAnalysis updates the status of a ClusterAnalysis
 func (r *ClusterAnalysisReconciler) updateAnalysis(ctx context.Context, analysis *v1alpha1.ClusterAnalysis) error {
 	if err := r.Status().Update(ctx, analysis); err != nil {
 		r.Log.Error(err, "failed to update ClusterAnalysis status")
