@@ -1,3 +1,6 @@
+## Deprecation notice
+This project has been deprecated. Check out [k8sgpt-operator](https://github.com/k8sgpt-ai/k8sgpt-operator) instead.
+
 # Shepard
 Wraps k8sgpt functionality with the ClusterAnalysis CR for declarative, Kubernetes-native cluster health analyses.
 
